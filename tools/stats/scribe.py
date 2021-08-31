@@ -40,3 +40,19 @@ def _send_to_scribe_via_http(access_token: str, logs: str) -> str:
     )
     r.raise_for_status()
     return str(r.text)
+
+
+if __name__ == "__main__":
+    # lazy import so that we don't need to introduce extra dependencies
+    import boto3  # type: ignore[import]
+    print("RUNNING")
+
+    client = boto3.client("lambda")
+    event = {
+        "hello": "hi"
+    }
+    res = client.invoke(FunctionName='rds-proxy', Payload=json.dumps(event).encode())
+    payload = str(res['Payload'].read().decode())
+    if res.get('FunctionError'):
+        raise Exception(payload)
+    print(payload)
